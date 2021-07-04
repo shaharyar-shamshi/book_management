@@ -1,0 +1,66 @@
+#!/usr/bin/env node
+
+/**
+ * Module dependencies.
+ */
+
+ var debug = /* require('debug')('holofy:server'); */ console.log
+var http = require('http');
+
+/**
+ * Normalize a port into a number, string, or false.
+ */
+
+function normalizePort(val) {
+  var port = parseInt(val, 10);
+
+  if (isNaN(port)) {
+    // named pipe
+    return val;
+  }
+
+  if (port >= 0) {
+    // port number
+    return port;
+  }
+
+  return false;
+}
+const bootstrap = async () => {
+  let app = await require("../app")();
+  let port = await normalizePort(process.env.PORT || "4000");
+  app.set("port", port);
+  let server = http.createServer(app);
+  server.on("error", (e) => {
+    if (e.syscall !== "listen") throw e;
+    let bind = typeof port === "string" ? "Pipe " + port : "Port " + port;
+    switch (e.code) {
+      case "EACCES":
+        console.error(bind + " requires elevated privileges");
+        process.exit(1);
+        break;
+      case "EADDRINUSE":
+        console.error(bind + " is already in use");
+        process.exit(1);
+        break;
+      default:
+        throw e;
+    }
+  });
+  server.on("listening", () => {
+    let addr = server.address();
+    let bind = typeof addr === "string" ? "pipe " + addr : "port " + addr.port;
+    debug("Listening on " + bind);
+  });
+  server.listen(port);
+  return app;
+};
+
+bootstrap().then(
+  (app) => {
+    console.log("app started");
+  },
+  (e) => {
+    debug(e);
+  }
+);
