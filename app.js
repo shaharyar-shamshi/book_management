@@ -71,6 +71,7 @@ app.use(
 const routesBootstrap = async () => {
   let indexRoute = await require("./routes/index")(app);
   let routes = {
+    book: await require("./routes/bookRoutes")(app)
   };
   for (let i in routes) app.use(`/${i}`, routes[i]);
   app.use("/", indexRoute);

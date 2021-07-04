@@ -9,7 +9,6 @@ let BookSchema = new mongoose.Schema({
   author: { type: String, required: true },
   number_of_copy: { type: Number, required: true},
   remaining_copy: { type: Number, required: true},
-  authorName: { type: String, required: true},
   release_date: { type: Date, required: true }
 },
 {
@@ -20,10 +19,9 @@ BookSchema.index({name: 1, author: 1}, { unique: true})
 
 
 
-
-const book = mongoose.model("book", BookSchema);
-
-
-module.exports = {
-  book
-};
+BookSchema.pre('save', function (next) {
+    this.remaining_copy = this.get('number_of_copy'); // considering _id is input by client
+    
+    next();
+});
+module.exports = mongoose.model("Book", BookSchema);
